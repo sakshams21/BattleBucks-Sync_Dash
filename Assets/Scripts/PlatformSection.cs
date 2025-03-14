@@ -1,43 +1,60 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
- 
- public class PlatformSection : MonoBehaviour
- {
-     [SerializeField] private Vector3[] Obstacle_Positions;
 
-     private float _moveSpeed;
-     private void OnTriggerEnter(Collider other)
-     {
-         if (other.CompareTag("Player"))
-         {
-             //Spawn the next one
-         }
+public class PlatformSection : MonoBehaviour
+{
+    [SerializeField] private Transform[] Obstacle_Positions;
 
-         if (other.CompareTag("BackToPool"))
-         {
-             //back to pool
-         }
-     }
+    private List<GameObject> _pickups = new();
+    private List<GameObject> _obstacles = new();
 
-     private void Update()
-     {
-         transform.position += Vector3.left * (_moveSpeed * Time.deltaTime);
-     }
+    public void SetupSection()
+    {
+        //to prevent 2 obstacle right after another
+        bool obstaclePlaced = false;
+        for (int i = 0; i < Obstacle_Positions.Length; i++)
+        {
+            if (UnityEngine.Random.Range(0, 2) == 1 && !obstaclePlaced)
+            {//place obstacle
+                var item = GameManager.Instance.GetObstacle();
+                item.transform.SetParent(Obstacle_Positions[i]);
+                item.gameObject.SetActive(true);
+                item.transform.localPosition = Vector3.zero;
+                obstaclePlaced = true;
+                _obstacles.Add(item);
+            }
+            else
+            {//place pickup
+                var item = GameManager.Instance.GetPickup();
+                item.transform.SetParent(Obstacle_Positions[i]);
+                item.gameObject.SetActive(true);
 
-     public void SpeedChange(float speed)
-     {
-         _moveSpeed = speed;
-     }
+                item.transform.GetChild(0).gameObject.SetActive(true);
+                item.transform.GetChild(0).transform.localPosition = Vector3.zero;
+                item.transform.GetChild(1).gameObject.SetActive(true);
+                item.transform.GetChild(1).transform.localPosition = Vector3.zero;
 
-     public void OnSectionSpawn()
-     {
-         //Put traps and pickups randomly
-         
-     }
+                item.transform.localPosition = Vector3.zero;
+                obstaclePlaced = false;
+                _pickups.Add(item);
+            }
+        }
 
-     public void OnSectionDestroy()
-     {
-         //put it back to pool
-     }
- 
- }
+    }
+
+    public void OnSectionDestroy()
+    {
+        foreach (var item in _obstacles)
+        {
+            GameManager.Instance.BackToPool(item, Type.obstacle);
+        }
+        _obstacles.Clear();
+        foreach (var item in _pickups)
+        {
+            GameManager.Instance.BackToPool(item, Type.pickup);
+        }
+        _pickups.Clear();
+    }
+
+}
