@@ -71,6 +71,8 @@ public class UI_Manager : MonoBehaviour
             Loading_Canvas.enabled = false;
             Loading_Canvas.gameObject.SetActive(false);
         });
+        ScoreUpdate(0);
+        LivesUpdate(GameManager.Instance.Ref_LevelData.TotalLives);
     }
 
     public void ShowLoading(Action someAction)
@@ -89,7 +91,7 @@ public class UI_Manager : MonoBehaviour
     // public void PauseGame(bool isPause)
     // {
     //     GameManager.Instance.PauseGame(isPause);
-    // }
+    //}
 
 
 
