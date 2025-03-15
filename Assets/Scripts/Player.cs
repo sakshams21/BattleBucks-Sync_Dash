@@ -34,7 +34,7 @@ public class Player : MonoBehaviour
     [EasyButtons.Button]
     public void Jump()
     {
-        if (_isGrounded && !GameManager.Instance.isGamePaused)
+        if (_isGrounded && !GameManager.Instance.isGameOver)
         {
             Player_RigidBody.velocity = new Vector3(Player_RigidBody.velocity.x, jumpForce, Player_RigidBody.velocity.z);
             _isGrounded = false;
@@ -42,7 +42,7 @@ public class Player : MonoBehaviour
     }
     private void Update()
     {
-        if (GameManager.Instance.isGamePaused) return;
+        if (GameManager.Instance.isGameOver) return;
 
         if (SyncPlayer.Instance != null)
         {
@@ -50,7 +50,7 @@ public class Player : MonoBehaviour
         }
 
         //distance calculation
-        float distanceTraveled = Mathf.Abs(transform.position.x - _lastPos);
+        float distanceTraveled = Mathf.Abs(transform.position.z - _lastPos);
 
         _totalDistance += distanceTraveled;
         if (_totalDistance >= GameManager.Instance.Ref_LevelData.DistanceThresholdForPoint)
@@ -63,14 +63,13 @@ public class Player : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (GameManager.Instance.isGamePaused) return;
+        if (GameManager.Instance.isGameOver) return;
 
         if (shouldMove && _isGrounded)
         {
             Vector3 velocity = Player_RigidBody.velocity;
             velocity.z = GameManager.Instance.Ref_LevelData.InitialSpeed;
             Player_RigidBody.velocity = velocity;
-            _totalDistance += transform.position.z;
         }
     }
 
@@ -90,12 +89,13 @@ public class Player : MonoBehaviour
         }
         if (collision.gameObject.CompareTag("Obstacle"))
         {
-            //stop or take damage take live
-            //push back player
-            //dissolve the obstacle
+            //stop or take damage or take live
+            GameManager.Instance.ReduceLives();
+
             collision.collider.enabled = false;
             shouldMove = false;
 
+            //dissolving obstacle
             collision.gameObject.GetComponent<MeshRenderer>().materials[0].DOFloat(1, "_Dissolve", 0.5f).OnComplete(() =>
             {
                 collision.gameObject.SetActive(false);
@@ -106,6 +106,8 @@ public class Player : MonoBehaviour
             Player_RigidBody.velocity = Vector3.zero;
             // Player_RigidBody.DOJump
             shouldMove = false;
+
+            //push back player
             Player_RigidBody.AddForce(pushBackDirection * BackForce, ForceMode.Impulse);
         }
     }

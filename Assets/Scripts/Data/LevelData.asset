@@ -15,6 +15,7 @@ MonoBehaviour:
   InitialSpeed: 12.4
   SpeedIncreaseMultiplier: 1.2
   SyncDelay: 0.5
-  PointPerPickUp: 5
-  PointDistance: 3
-  DistanceThresholdForPoint: 10
+  TotalLives: 10
+  ScorePerCollectablePickup: 5
+  ScorePerDistanceTravelled: 10
+  DistanceThresholdForPoint: 20

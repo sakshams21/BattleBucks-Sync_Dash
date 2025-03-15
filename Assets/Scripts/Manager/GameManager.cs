@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SceneManagement;
+using UnityEngine.SocialPlatforms.Impl;
 
 public class GameManager : MonoBehaviour
 {
@@ -19,10 +21,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float NextSpawnDistance = 29f;
 
     public event Action<int> OnScoreUpdate;
+    public event Action<int> OnLivesUpdate;
+    public event Action<int> OnGameOver;
 
     private int _startingSectionNumber = 3;
 
-    private float _maxDistaceforOriginReset = 100;
+    private float _maxDistaceforOriginReset = 3000;
 
     private bool originResetSoon = false;
 
@@ -30,7 +34,8 @@ public class GameManager : MonoBehaviour
 
     private int _score;
 
-    public bool isGamePaused { get; private set; }
+    public bool isGameOver { get; private set; }
+    private int _totalLives;
 
     private void Awake()
     {
@@ -41,6 +46,7 @@ public class GameManager : MonoBehaviour
         Instance = this;
 
         _nextSectionPosition = new Vector3(0, -1, -NextSpawnDistance);
+        _totalLives = Ref_LevelData.TotalLives;
 
     }
     private IEnumerator Start()
@@ -58,20 +64,35 @@ public class GameManager : MonoBehaviour
 
     public void ScoreAdd_Pickup()
     {
-        _score += Ref_LevelData.PointPerPickUp;
-        OnScoreUpdate?.Invoke(_score);
+        ScoreUpdate(Ref_LevelData.ScorePerCollectablePickup);
     }
 
     public void ScoreUpdateDistance()
     {
+        ScoreUpdate(Ref_LevelData.ScorePerDistanceTravelled);
+    }
 
+    private void ScoreUpdate(int update)
+    {
+        _score += update;
+        OnScoreUpdate?.Invoke(_score);
     }
     #endregion
 
-    public void PauseGame(bool isPaused)
+
+
+    public void ReduceLives()
     {
-        isGamePaused = isPaused;
-        Time.timeScale = isPaused ? 0 : 1;
+        _totalLives--;
+
+        if (_totalLives <= 0)
+        {
+            _totalLives = 0;
+            isGameOver = true;
+            OnGameOver?.Invoke(_score);
+        }
+
+        OnLivesUpdate?.Invoke(_totalLives);
     }
 
     public void StartingSectionSpawn()
@@ -137,6 +158,20 @@ public class GameManager : MonoBehaviour
             Ref_PickupManager.BackToPool(item);
         }
     }
+
+    #region Game over Scene
+
+    public void Restart_GameOver()
+    {
+        SceneManager.LoadSceneAsync(1);
+    }
+
+    public void MainMenu_GamveOver()
+    {
+        SceneManager.LoadSceneAsync(0);
+    }
+
+    #endregion
 
 }
 

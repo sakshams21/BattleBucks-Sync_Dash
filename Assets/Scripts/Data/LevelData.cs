@@ -9,13 +9,15 @@ public class LevelData : ScriptableObject
 
     public float SyncDelay = 0.5f;
 
-    public int PointPerPickUp = 5;
+    public int TotalLives = 10;
+
+    public int ScorePerCollectablePickup;
 
     /// <summary>
     /// Points per 10 distance travelled
     /// </summary>
     [Tooltip("Points per 10 distance travelled")]
-    public int PointDistance = 3;
+    public int ScorePerDistanceTravelled;
 
-    public float DistanceThresholdForPoint = 10;
+    public float DistanceThresholdForPoint;
 }
