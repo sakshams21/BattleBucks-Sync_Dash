@@ -5,7 +5,7 @@ Sync Dash is a hyper-casual game developed in Unity, featuring real-time state s
 
 
 ## Gameplay Preview
-![Gameplay GIF](/Assets/Gameplay%20Recording/Gameplay.mp4)  
+![Watch Gameplay Video](/Assets/Gameplay%20Recording/Gameplay.mp4)  
 
 ### Playing the Game
 - Tap the screen to make the cube jump.
